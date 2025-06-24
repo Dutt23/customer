@@ -13,9 +13,11 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +48,35 @@ public class CustomerService implements ICustomerService {
             backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public List<Customer> createCustomers(List<CustomerDTO> customerDTOS) {
-        List<Customer> customers =  this.customerMapper.toEntityList(customerDTOS);
-        return this.customerRepository.saveAll(customers);
+
+        List<Customer> customers = this.customerRepository.saveAll(this.customerMapper.toEntityList(customerDTOS));
+        LOGGER.info("[CustomerService] inserted all {} customers", customerDTOS.size());
+        return customers;
     }
+
+//    Method to be used if bulk creation fails , because of one bad user.
+@Recover
+public List<Customer> recoverAfterBulkInsert(Exception e, List<CustomerDTO> customerDTOS) {
+    LOGGER.info("[CustomerService] Bulk insert failure : ", e);
+    LOGGER.info("[CustomerService] Attempting to insert one by one : ", e);
+    List<Customer> failedCustomers = new ArrayList<>();
+    List<Customer> savedCustomers = new ArrayList<>();
+    for (CustomerDTO dto : customerDTOS) {
+        try {
+            Customer customer = this.customerMapper.toEntity(dto);
+            Customer saved = this.customerRepository.save(customer);
+            savedCustomers.add(saved);
+        } catch (Exception ex) {
+            // Log or collect failed DTOs
+            failedCustomers.add(this.customerMapper.toEntity(dto));
+        }
+    }
+    // Optionally, log or handle failedCustomers as needed
+    if (!failedCustomers.isEmpty()) {
+        // You can throw an exception, log, or return partial results
+        LOGGER.error("Failed to save the following customers: " + failedCustomers);
+    }
+    LOGGER.info("[CustomerService] tried to insert {} customers succeded in inserting {} ", customerDTOS.size(), customerDTOS.size() - failedCustomers.size());
+    return savedCustomers;
+}
 }
