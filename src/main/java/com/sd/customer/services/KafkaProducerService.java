@@ -16,7 +16,6 @@ import java.util.concurrent.CompletableFuture;
 public class KafkaProducerService {
         private static final Logger LOGGER = LogManager.getLogger(CustomerService.class);
         private KafkaTemplate<String, Customer> kafkaTemplate;
-
         @Autowired
         public KafkaProducerService(KafkaTemplate<String, Customer> kafkaTemplate) {
                 this.kafkaTemplate = kafkaTemplate;
@@ -48,7 +47,7 @@ public class KafkaProducerService {
                                         }
                                         sendWithRetry(topic, customer, maxAttempts, backoffMillis * 2, attempt + 1);
                                 } else {
-                                        LOGGER.error("Failed to send after " + attempt + " attempts: " + ex.getMessage());
+                                        LOGGER.error("[KafkaProducerService] Failed to send after " + attempt + " attempts: " + ex.getMessage());
                                 }
                         }
                 });

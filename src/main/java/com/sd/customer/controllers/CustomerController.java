@@ -30,6 +30,7 @@ public class CustomerController {
 
     private KafkaProducerService kafkaProducerService;
 
+    private static final String CREATE_CUSTOMER_TOPIC = "customer-created-topic";
     @Autowired
     public CustomerController(final CustomerService customerService, final KafkaProducerService kafkaProducerService) {
         this.customerService = customerService;
@@ -40,7 +41,7 @@ public class CustomerController {
     public ResponseEntity<List<Customer>> createCustomer(@Valid @RequestBody List<CustomerDTO> customersReq) {
         List<Customer> customers = customerService.createCustomers(customersReq);
         LOGGER.info("[CustomerController] created {} customers", customers.size());
-        this.kafkaProducerService.sendMessageAsync("customer-created-topic",customers);
+        this.kafkaProducerService.sendMessageAsync(CREATE_CUSTOMER_TOPIC,customers);
         return ResponseEntity.status(HttpStatus.OK).body(customers);
     }
 

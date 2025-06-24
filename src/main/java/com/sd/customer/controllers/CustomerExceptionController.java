@@ -38,6 +38,7 @@ public class CustomerExceptionController {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleAllExceptions(Exception ex) {
+        LOGGER.error(ex);
         Map<String, Object> errorBody = new HashMap<>();
         errorBody.put("timestamp", LocalDateTime.now());
         errorBody.put("status", 400);
