@@ -1,56 +1,56 @@
 version: '3.8'
 
 services:
-  postgres:
+  customer-postgres:
     image: postgres:13
-    container_name: postgres
+    container_name: customer-postgres
     environment:
-      POSTGRES_USER: compose-postgres
-      POSTGRES_PASSWORD: compose-postgres
-      POSTGRES_DB: compose-postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: customer_db
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
 
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.0.1
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
-    restart: always
+#  zookeeper:
+#    image: confluentinc/cp-zookeeper:7.0.1
+#    container_name: zookeeper
+#    environment:
+#      ZOOKEEPER_CLIENT_PORT: 2181
+#      ZOOKEEPER_TICK_TIME: 2000
+#    ports:
+#      - "2181:2181"
+#    restart: always
 
-  kafka:
-    image: confluentinc/cp-kafka:7.0.1
-    container_name: kafka
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    restart: always
+#  kafka:
+#    image: confluentinc/cp-kafka:7.0.1
+#    container_name: kafka
+#    depends_on:
+#      - zookeeper
+#    ports:
+#      - "9092:9092"
+#    environment:
+#      KAFKA_BROKER_ID: 1
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#    restart: always
 
   app:
     build:
       context: .
       dockerfile: DockerFile
     image: springboot-gradle-postgres-kafka:latest
-    container_name: app
+    container_name: customer-app
     depends_on:
-      - postgres
-      - kafka
+      - customer-postgres
+#      - kafka
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/compose-postgres
-      SPRING_DATASOURCE_USERNAME: compose-postgres
-      SPRING_DATASOURCE_PASSWORD: compose-postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://customer-postgres:5432/customer_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
