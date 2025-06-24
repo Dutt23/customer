@@ -8,23 +8,25 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-@ControllerAdvice(assignableTypes = {CustomerController.class})
-public class CustomerExceptionController extends ResponseEntityExceptionHandler {
+@RestControllerAdvice(assignableTypes = {CustomerController.class})
+public class CustomerExceptionController {
 
     private static final Logger LOGGER = LogManager.getLogger(CustomerExceptionController.class);
 
-    @Override
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex,
-            HttpHeaders headers,
-            HttpStatusCode status,
-            WebRequest request) {
+            MethodArgumentNotValidException ex) {
         LOGGER.error("[CustomerExceptionController] Exception occurred while processing ", ex);
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
@@ -32,5 +34,17 @@ public class CustomerExceptionController extends ResponseEntityExceptionHandler 
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.toList());
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleAllExceptions(Exception ex) {
+        Map<String, Object> errorBody = new HashMap<>();
+        errorBody.put("timestamp", LocalDateTime.now());
+        errorBody.put("status", 400);
+        errorBody.put("error", "Bad Request");
+        errorBody.put("message", ex.getMessage());
+        errorBody.put("type", ex.getClass());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(errorBody);
     }
 }

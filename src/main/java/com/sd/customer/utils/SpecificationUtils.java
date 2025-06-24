@@ -7,18 +7,18 @@ import java.util.Map;
 
 public class SpecificationUtils {
 
-    public static <T> Specification<T> buildSpecificationFromMap(Map<String, String> filters) {
-        Specification<T> spec = null;
+    public static Specification buildSpecificationFromMap(Map<String, String> filters) {
+        Specification spec = null;
         for (Map.Entry<String, String> entry : filters.entrySet()) {
             if (entry.getValue() != null) {
-                Specification<T> fieldSpec = SpecificationUtils.hasNestedFieldEqualTo(entry.getKey(), entry.getValue());
+                Specification fieldSpec = SpecificationUtils.hasNestedFieldEqualTo(entry.getKey(), entry.getValue());
                 spec = (spec == null) ? fieldSpec : spec.and(fieldSpec);
             }
         }
         return spec;
     }
 
-    public static <T> Specification<T> hasNestedFieldEqualTo(String nestedField, Object value) {
+    public static  Specification hasNestedFieldEqualTo(String nestedField, Object value) {
         return (root, query, cb) -> {
             if (value == null) return null;
             String[] fields = nestedField.split("\\.");

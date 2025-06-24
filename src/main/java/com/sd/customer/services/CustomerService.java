@@ -1,11 +1,16 @@
 package com.sd.customer.services;
 
+import com.sd.customer.controllers.CustomerController;
 import com.sd.customer.dtos.CustomerDTO;
+import com.sd.customer.exceptions.InvalidParameterException;
 import com.sd.customer.mappers.CustomerMapper;
 import com.sd.customer.models.Customer;
 import com.sd.customer.repositories.CustomerRepository;
 import com.sd.customer.utils.SpecificationUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -16,6 +21,7 @@ import java.util.Map;
 @Service
 public class CustomerService implements ICustomerService {
 
+    private static final Logger LOGGER = LogManager.getLogger(CustomerService.class);
     private CustomerMapper customerMapper;
 
     private CustomerRepository customerRepository;
@@ -27,7 +33,12 @@ public class CustomerService implements ICustomerService {
 
     public List<Customer> getCustomers(Map<String, String> attributes, Pageable pageable) {
         Specification<Customer> spec = SpecificationUtils.buildSpecificationFromMap(attributes);
-        return customerRepository.findAll(spec, pageable).getContent();
+        try {
+            return customerRepository.findAll(spec, pageable).getContent();
+        } catch(InvalidDataAccessApiUsageException e) {
+            LOGGER.error(e);
+            throw new InvalidParameterException("Please check the parameters sent");
+        }
     }
 
     public List<Customer> createCustomers(List<CustomerDTO> customerDTOS) {
