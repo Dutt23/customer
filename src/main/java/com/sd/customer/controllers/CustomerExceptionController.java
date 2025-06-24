@@ -29,7 +29,7 @@ public class CustomerExceptionController {
         errorBody.put("timestamp", LocalDateTime.now());
         errorBody.put("status", 400);
         errorBody.put("error", "Bad Request");
-        errorBody.put("message", Arrays.asList(errors));
+        errorBody.put("message", Arrays.asList(ex.getMessage()));
         errorBody.put("type", ex.getClass());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(errorBody);
