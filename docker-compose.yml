@@ -41,7 +41,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: DockerFile
     image: springboot-gradle-postgres-kafka:latest
     container_name: app
     depends_on:
