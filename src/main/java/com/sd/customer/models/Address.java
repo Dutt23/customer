@@ -8,6 +8,8 @@ public class Address {
     private Long id;
 
     @Column(nullable = false)
+    private String address;
+    @Column(nullable = false)
     private String addressType;
 
     @Column(nullable = false)
@@ -34,6 +36,9 @@ public class Address {
         this.id = id;
     }
 
+    public String getAddress() { return this.address; }
+
+    public void setAddress(String address) { this.address = address; }
     public String getAddressType() {
         return addressType;
     }

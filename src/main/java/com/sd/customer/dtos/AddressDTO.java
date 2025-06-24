@@ -4,19 +4,23 @@ import jakarta.validation.constraints.NotBlank;
 
 public class AddressDTO {
     @NotBlank
-    private String addressType;
+    private String type;
     @NotBlank
-    private String address;
+    private String address1;
+
+    private String address2;
     private String city;
     private String state;
     private String zipCode;
 
     // Getters and Setters
-    public String getAddressType() { return addressType; }
-    public void setAddressType(String addressType) { this.addressType = addressType; }
+    public String getType() { return type; }
+    public void setType(String type ) { this.type = type; }
+    public void setAddress1(String address1) {  this.address1 = address1; }
+    public String getAddress1() { return address1; }
+    public void setAddress2(String address2) { this.address2 = address2; }
 
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
+    public String getAddress2() { return this.address2; }
 
     public String getCity() { return city; }
     public void setCity(String city) { this.city = city; }

@@ -7,8 +7,11 @@ import java.util.List;
 
 @Entity
 public class Customer {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private Long customerNumber;
 
     @Column(nullable = false)
@@ -23,6 +26,13 @@ public class Customer {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Address> addresses;
 
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
     public Long getCustomerNumber() {
         return customerNumber;
     }
