@@ -17,7 +17,7 @@ public class SimpleTimingMiddleware implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
-        logger.info("Started request [{} {}]", req.getMethod(), req.getRequestURI());
+        logger.info("Request [{} {}] Started", req.getMethod(), req.getRequestURI());
         long start = System.currentTimeMillis();
         chain.doFilter(request, response);
         long duration = System.currentTimeMillis() - start;

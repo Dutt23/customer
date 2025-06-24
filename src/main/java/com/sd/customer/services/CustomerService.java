@@ -1,6 +1,5 @@
 package com.sd.customer.services;
 
-import com.sd.customer.controllers.CustomerController;
 import com.sd.customer.dtos.CustomerDTO;
 import com.sd.customer.exceptions.InvalidParameterException;
 import com.sd.customer.mappers.CustomerMapper;
@@ -13,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,7 +41,10 @@ public class CustomerService implements ICustomerService {
             throw new InvalidParameterException("Please check the parameters sent");
         }
     }
-
+    @Retryable(
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
     public List<Customer> createCustomers(List<CustomerDTO> customerDTOS) {
         List<Customer> customers =  this.customerMapper.toEntityList(customerDTOS);
         return this.customerRepository.saveAll(customers);

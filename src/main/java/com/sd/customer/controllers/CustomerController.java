@@ -5,6 +5,7 @@ import com.sd.customer.dtos.CustomerDTO;
 import com.sd.customer.models.Customer;
 import com.sd.customer.services.CustomerService;
 import com.sd.customer.services.ICustomerService;
+import com.sd.customer.services.KafkaProducerService;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,14 +28,19 @@ public class CustomerController {
 
     private ICustomerService customerService;
 
+    private KafkaProducerService kafkaProducerService;
+
     @Autowired
-    public CustomerController(final CustomerService customerService) {
+    public CustomerController(final CustomerService customerService, final KafkaProducerService kafkaProducerService) {
         this.customerService = customerService;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     @RequestMapping(value = "/customers", method = RequestMethod.POST)
     public ResponseEntity<List<Customer>> createCustomer(@Valid @RequestBody List<CustomerDTO> customersReq) {
         List<Customer> customers = customerService.createCustomers(customersReq);
+        LOGGER.info("[CustomerController] created {} customers", customers.size());
+        this.kafkaProducerService.sendMessageAsync("customer-created-topic",customers);
         return ResponseEntity.status(HttpStatus.OK).body(customers);
     }
 
