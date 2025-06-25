@@ -3,7 +3,11 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "addresses")
+@Table(name = "addresses", indexes = {
+        @Index(name = "idx_address_address", columnList = "address"),
+        @Index(name = "idx_address_city", columnList = "city"),
+        @Index(name = "idx_address_zip", columnList = "zip")
+})
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

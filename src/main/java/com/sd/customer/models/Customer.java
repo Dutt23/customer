@@ -7,13 +7,15 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "customers", indexes = @Index(name = "idx_customer_first_name", columnList = "firstName"))
+
 public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private Long customerNumber;
 
     @Column(nullable = false)
